@@ -1,0 +1,98 @@
+#!/bin/sh
+# ebook2pdf - Converts All Types of eBooks to PDF, Version 1.0
+# Copyright (c) 2016-2018 ardeshirv@protonmail.com, Licensed under GPLv3+
+#
+# Standards in This Code:
+# White "\033[0m": Normal Text.
+# Green "\033[0;32m": User Input Values.
+# Bold-Red "\033[1;31m": Errors and Failures.
+# Red "\033[0;31m": Warnings and Usage Alarms.
+# Bold-Blue "\033[1;34m": Hyper Links and Emails.
+# Magenta "\033[0;35m": Application Outputs and Results.
+# Brown & Yellow "\033[0;33m": Application Descriptions and Copyright Notics.
+
+color="true"
+app_name="ebook2pdf"
+version="1.0"
+license="GPLv3+"
+copyright_year="2016-2018"
+copyright="ardeshirv@protonmail.com"
+description="Converts All Types of eBooks to PDF"
+
+title=""
+copyrithgt=""
+
+if $color == "true" ; then
+    title_color="\033[1;33m$app_name\033[0;33m - $description, \033[1;33mVersion $version\033[0m"
+    copyright_color="\033[0;33mCopyright (c) \033[1;33m$copyright_year \033[1;34m$copyright\033[0;33m, Licensed under \033[1;33m$license\033[0;33m\033[0m"
+    title=$title_color
+    copyright=$copyright_color
+else
+    title_mono="$app_name - $description Version $version"
+    copyright_mono="Copyright (c) $copyright_year $copyright, Licensed under $license"
+    title=$title_mono
+    copyright=$copyright_mono
+fi
+
+echo $title
+echo $copyright
+echo
+
+command="ebook2pdf"
+output_dir="Result PDF(s)"
+line="______________________________________________________________________"
+
+if [ -x "command -v calibre" ] ; then
+    echo "\033[1;31mError: The \"calibre\" is not installed.\033[0m"
+    echo "\033[1;31mThe \"$command\" can not work without calibre.\033[0m"
+    while true; do
+        read -p "Do you want to install calibre? [y/n]: " yn
+        case $yn in
+            [Yy]* ) sudo apt -y install calibre ; break;;
+            [Nn]* ) exit;;
+            * ) echo "\033[0;31mPlease answer yes or no.\033[0m";;
+        esac
+    done
+    echo
+fi
+
+if [ ! -d "$output_dir" ] ; then
+    mkdir "$output_dir"
+fi
+
+while [ "$1" != "" ] ; do
+  if [ "$1" != "$command" ] && [ "$1" != "$output_dir" ] ; then
+    echo $line
+    echo "Converting \"\033[0;32m$1\033[0m\" to pdf file ..."
+    ebook-convert "$1" "$output_dir/$1.pdf"
+  fi
+  shift
+done
+
+cd "$output_dir"
+out_file_count=$(ls -1q | grep -v ^l | wc -l)
+
+if [ $out_file_count != "0" ] ; then
+    rename s'/.chm.pdf/.pdf/' *
+    rename s'/.txtb.pdf/.pdf/' *
+    rename s'/.txt.pdf/.pdf/' *
+    rename s'/.rtf.pdf/.pdf/' *
+    rename s'/.doc.pdf/.pdf/' *
+    rename s'/.epub.pdf/.pdf/' *
+    rename s'/.azw3.pdf/.pdf/' *
+    rename s'/.mobi.pdf/.pdf/' *
+    rename s'/.docx.pdf/.pdf/' *
+    echo $line
+    echo "$out_file_count PDF(s) has been created:"
+    echo "\033[0;35m"
+    ls -1q
+    echo "\033[0m"
+    echo $line
+else
+    cd ..
+    rmdir "$output_dir"
+    echo "Valid eBook file not found in this directory."
+fi
+
+echo "\033[0m"
+exit 0
