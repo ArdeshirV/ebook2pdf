@@ -1,5 +1,5 @@
 # ebook2pdf
-<h3>Convert documents to PDF</h3>
+<h3>Document to pdf Convertor</h3>
 You can use ebook2pdf to convert your documents to PDF easily; for example:<br/>
 <code>ebook2pdf Letter-1.odt<document-name></code><br/>
 And the output will be something like this:<br/><br/>
